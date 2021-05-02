@@ -1,0 +1,48 @@
+{
+    "tags": {
+        "Name": "StopEC2InstancesWithFilters"
+    },
+    "description": "Stop and restart all instances in eu-west-1 with the tag env=prod in the specified VPC",
+    "targets": {
+        "myInstances": {
+            "resourceType": "aws:ec2:instance",
+            "resourceTags": {
+                "Name": "prod"
+            },
+            "filters": [
+                {
+                    "path": "Placement.AvailabilityZone",
+                    "values": ["eu-west-1b"]
+                },
+                {
+                    "path": "State.Name",
+                    "values": ["running"]
+                },
+                {
+                    "path": "VpcId",
+                    "values": [ "vpc-0z135z6z"]
+                }
+            ],
+            "selectionMode": "ALL"
+        }
+    },
+    "actions": {
+        "StopInstances": {
+            "actionId": "aws:ec2:stop-instances",
+            "description": "stop the instances",
+            "parameters": {
+                "startInstancesAfterDuration": "PT5M"
+            },
+            "targets": {
+                "Instances": "myInstances"
+            }
+        }
+    },
+    "stopConditions": [
+        {
+            "source": "aws:cloudwatch:alarm",
+            "value": "arn:aws:cloudwatch:eu-west-1:111111111111:alarm:fis-alarm"
+        }
+    ],
+    "roleArn": "arn:aws:iam::111111111111:role/fis-demo-ec2"
+}
